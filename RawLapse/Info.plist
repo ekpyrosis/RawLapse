@@ -5,11 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>RawLapse</string>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.egeozsoy.rawlapse</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -25,7 +25,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>RawLapse needs to access the camera to take photos. The photos will not be uploaded anywhere, and will stay on the device.</string>
+	<string>TLapse needs to access the camera to take photos. The photos will not be uploaded anywhere, and will stay on the device.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>RawLapse needs to save the taken photos to the photo library. The photos will not be uploaded anywhere, and will stay on the device.</string>
 	<key>UILaunchStoryboardName</key>

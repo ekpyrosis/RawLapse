@@ -441,7 +441,8 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func rawNotSupportedOnDevice() -> Bool {
-        return (photoOutput?.availableRawPhotoFileTypes == nil  || photoOutput?.availableRawPhotoFileTypes.count == 0)
+        return false
+        //return (photoOutput?.availableRawPhotoFileTypes == nil  || photoOutput?.availableRawPhotoFileTypes.count == 0)
     }
     
     func resetParameters(){
@@ -478,21 +479,23 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     @objc func toggleRawButton(){
-        if activeTimelapse == false{
-            if rawButton?.isSelected == true{
-                rawButton?.isSelected = false
-            }
-            else{
-                if rawNotSupportedOnDevice(){
-                    rawButton?.isEnabled = false
-                    //                    showAlert(withTitle: "Device not supported", withMessage: "RAW mode is only available on devices, that support raw photos, you can still use RawLapse for taking JPEG photos")
-                }
-                else{
-                    rawButton?.isEnabled = true
-                    rawButton?.isSelected = true
-                }
-            }
-        }
+        rawButton?.isEnabled = false
+        rawButton?.isSelected = false
+//        if activeTimelapse == false{
+//            if rawButton?.isSelected == true{
+//                rawButton?.isSelected = false
+//            }
+//            else{
+//                if rawNotSupportedOnDevice(){
+//                    rawButton?.isEnabled = false
+//                    //                    showAlert(withTitle: "Device not supported", withMessage: "RAW mode is only available on devices, that support raw photos, you can still use RawLapse for taking JPEG photos")
+//                }
+//                else{
+//                    rawButton?.isEnabled = false
+//                    rawButton?.isSelected = true
+//                }
+//            }
+//        }
     }
     
     //    get preview by putting your hand
@@ -1188,4 +1191,3 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
         photoCounterLabel.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
 }
-
