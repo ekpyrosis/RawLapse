@@ -151,10 +151,12 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     
     //   MARK:  camera Setups
     func setupCaptureSession(){
+        print("setupCaptureSession")
         captureSession.sessionPreset = AVCaptureSession.Preset.photo
     }
     
     func setupDevice(telephotoCamera telephoto:Bool){
+        print("setupDevice")
         if telephoto{
             let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [AVCaptureDevice.DeviceType.builtInTelephotoCamera] , mediaType: AVMediaType.video, position: AVCaptureDevice.Position.back)
             
@@ -170,6 +172,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func setupInputOutput(){
+        print("setupInputOutput")
         do{
             guard let currentCamera = self.currentCamera else {
                 self.shutterButton.tintColor = self.disabledColor
@@ -217,6 +220,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     
     //    how to setup photoSettings
     func setupRawJpeg(rawSupported rawSupport: Bool){
+        print("setupRawJpeg")
         if rawSupport{
             guard let rawFormatType = photoOutput?.availableRawPhotoPixelFormatTypes.first else{
                 setupRawJpeg(rawSupported: false)
@@ -237,6 +241,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func setupPreviewLayer(){
+        print("setupPreviewLayer")
         cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         guard let cameraPreviewLayer = cameraPreviewLayer else{
             return
@@ -257,6 +262,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func startRunningCaptureSession(){
+        print("startRunningCaptureSession")
         captureSession.startRunning()
     }
     
@@ -357,6 +363,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     
     //    helper Functions
     func getSettingFromSettingsDic(settingToGet settingStr : String) -> Bool{
+        print("getSettingFromSettingsDic")
         guard let settingsDic = UserDefaults.standard.dictionary(forKey: "settinsgDic") as? [String:Bool] else{return false}
         if let settingBoolean = settingsDic[settingStr]{
             return settingBoolean
@@ -513,6 +520,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func setupCameras(telephoto:Bool){
+        print("setupCameras")
         self.setupCaptureSession()
         self.setupDevice(telephotoCamera: telephoto)
         self.setupPreviewLayer()
@@ -522,7 +530,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func switchCamera(changeToTelephoto telephoto:Bool){
-        
+        print("switchCamera")
         if AVCaptureDevice.default(.builtInDualCamera, for: AVMediaType.video, position: .back) != nil{
             captureSession = AVCaptureSession()
             cameraPreviewLayer?.removeFromSuperlayer()
@@ -592,6 +600,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     @objc func startTimelapse(){
+        print("startTimelapse")
         setupRawJpeg(rawSupported: rawButton!.isSelected)
         
         self.amountOfPhotos = pickerViewController.amountOfPhotos
@@ -733,20 +742,51 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
         return imageOrientation
     }
     
+     func getEXIFFromImage(image:NSData) -> NSDictionary {
+        let imageSourceRef = CGImageSourceCreateWithData(image, nil);
+        let currentProperties = CGImageSourceCopyPropertiesAtIndex(imageSourceRef!, 0, nil)
+        let mutable = NSMutableDictionary(dictionary: currentProperties!)
+        return mutable
+    }
+    
     @objc  func takePhoto(){
+        print("takePhoto")
+        print("photoSettings:\(String(describing: photoSettings))")
         if let photoSettings = self.photoSettings {
             photoOutput?.connection(with: AVMediaType.video)?.videoOrientation = managePhotoOrientation()
+            //photoOutput?.connection(with: AVMediaType.video)?.videoOrientation = managePhotoOrientation()
+    
             let uniqueSettings = AVCapturePhotoSettings.init(from: photoSettings)
             self.photoOutput?.capturePhoto(with: uniqueSettings, delegate: self)
+            
+            print("photoOutput:\(String(describing: self.photoOutput))")
+            
+            
+//            let beach = UIImage(data: self.jpegPhotoData!)
+//            let imageData: Data = UIImageJPEGRepresentation(beach, 1)!
+
+//            let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
+//            let uti: CFString = CGImageSourceGetType(cgImgSource)!
+//            let dataWithEXIF: NSMutableData = NSMutableData(data: imageData)
+//            let destination: CGImageDestination = CGImageDestinationCreateWithData((dataWithEXIF as CFMutableData), uti, 1, nil)!
+//
+//
+//            let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
+//            let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
+//
+//            var EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
+            
         }
     }
     
     func cachesDirectory() -> URL{
         let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+        print("cachesDirectory:\(paths[0])")
         return paths[0]
     }
     
     func uniqueURL() -> URL{
+        print("uniqueURL")
         if uuid == nil{
             uuid = UUID().uuidString
         }
@@ -766,14 +806,19 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
         }
         if let newUuid = uuid{
             let saveString = "IMG-" + newUuid + appendString + ".dng"
+            print("saveString1\(saveString)")
             return cachesDirectory().appendingPathComponent(saveString)
         }
         else {
             let saveString = "IMG-" + appendString + ".dng"
-            return cachesDirectory().appendingPathComponent(saveString)        }
+            print("saveString2")
+            return cachesDirectory().appendingPathComponent(saveString)
+            
+        }
     }
     
     func tmpURL(count: Int) -> URL{
+        print("tmpURL")
         if uuid == nil{
             uuid = UUID().uuidString
         }
@@ -801,15 +846,18 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        print("photoOutput1")
         if photo.isRawPhoto{
             self.rawPhotoData = photo.fileDataRepresentation()
         }
         else{
             self.jpegPhotoData = photo.fileDataRepresentation()
+            print("jpegPhotoData:\(self.jpegPhotoData)")
         }
     }
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
+        print("photoOutput2")
         guard error == nil else{
             return
         }
@@ -817,7 +865,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func getAdjustedRaw(rawData : Data?) -> CIImage?{
-        
+        print("getAdjustedRaw")
         guard let shadowHighlight = CIFilter(name: "CIHighlightShadowAdjust") else{print("shadowHighlightNotFound");return nil}
         guard let contrastCurve = CIFilter(name: "CIColorControls") else{ print("CIColorControlsNotFound"); return nil}
         guard let rawImage = CIFilter(imageData: rawData, options: nil) else {return nil}
@@ -842,10 +890,12 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
          kCIContextPriorityRequestLow : true ])
     
     func createCGIImage(from rawImage: CIImage ) -> CGImage? {
+        print("createCGIImage")
         return contextForSaving.createCGImage(rawImage, from: rawImage.extent, format: kCIFormatRGBAh, colorSpace: CGColorSpace(name:CGColorSpace.extendedLinearSRGB), deferred: true)
     }
     
     func callProcessQueue(){
+        print("callProcessQueue")
         if createVideo == false{
             return
         }
@@ -863,7 +913,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     fileprivate func shouldCreateVideo(_ continueLoop: inout Bool) {
-        
+        print("shouldCreateVideo")
         if self.processedPhotoCounter == successfullySavedPhotoCounter && activeTimelapse == false && self.createVideo == true {
             continueLoop = false
             print("Start video creation")
@@ -874,14 +924,17 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     fileprivate func createImageAndAddToList(_ myNewPhotoData: Data?) throws {
+        print("createImageAndAddToList")
         let myUrl = tmpURL(count: processedPhotoCounter)
         try myNewPhotoData?.write(to: myUrl)
+        print("myurl: \(myUrl)")
         images.append(myUrl)
         processedPhotoCounter += 1
     }
     
     //autorelease pool for memory management - because of a bug in UIImagejpegRep
     func processRawQueue(){
+        print("processRawQueue")
         var continueLoop = true
         while continueLoop {
             while !rawsToProcess.isEmpty{
@@ -909,6 +962,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func processJpegQueue(){
+        print("processJpegQueue")
         var continueLoop = true
         while continueLoop {
             while !jpegsToProcess.isEmpty{
@@ -919,6 +973,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
                     let mynewUIImage = UIImage.init(cgImage: myCGImage!, scale: 1.0, orientation: testUI!.imageOrientation)
                     let myNewPhotoData = UIImageJPEGRepresentation(mynewUIImage, 0.8)
                     do {
+                        print("newphotodata:\(myNewPhotoData)")
                         try createImageAndAddToList(myNewPhotoData)
                     }
                     catch{
@@ -932,6 +987,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func saveRawWithEmbeddedThumbnail(){
+        print("saveRawWithEmbeddedThumbnail")
         self.checkPhotoLibraryAuthorization { (error) in}
         let dngFileURL = uniqueURL()
         do{
@@ -957,14 +1013,74 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
                 creationRequet.addResource(with: .photo, fileURL: dngFileURL, options: creationOptions)
             }
             else{
+                print("savingphototolibrary")
                 self.jpegsToProcess.append(self.jpegPhotoData!)
+                print("jpegsToProcess:\(self.jpegsToProcess)")
+                print("jpegPhotoData:\(self.jpegPhotoData!)")
                 self.successfullySavedPhotoCounter += 1
+                print("successfullySavedPhotoCounter:\(self.successfullySavedPhotoCounter)")
+                
                 creationRequet.addResource(with: .photo, data: self.jpegPhotoData!, options: creationOptions)
+                print(self.getEXIFFromImage(image: self.jpegPhotoData! as NSData))
+                ///
+                let beach: UIImage = UIImage(data: (self.jpegPhotoData! as NSData) as Data)!
+                let imageData: Data = UIImageJPEGRepresentation(beach, 1)!
+
+                let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
+                let uti: CFString = CGImageSourceGetType(cgImgSource)!
+                let dataWithEXIF: NSMutableData = NSMutableData(data: imageData)
+                let destination: CGImageDestination = CGImageDestinationCreateWithData((dataWithEXIF as CFMutableData), uti, 1, nil)!
+
+                let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
+                let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
+                
+                var EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
+
+                print("before modification \(EXIFDictionary)")
+                ///
+//                let GPSMetadata = NSMutableDictionary()
+//                GPSMetadata[(kCGImagePropertyGPSLatitude as String)] = ""
+//                GPSMetadata[(kCGImagePropertyGPSLongitude as String)] = ""
+//                GPSMetadata[(kCGImagePropertyGPSLatitudeRef as String)] = "N"
+//                GPSMetadata[(kCGImagePropertyGPSLongitudeRef as String)] = "E"
+//                GPSMetadata[(kCGImagePropertyGPSAltitude as String)] = 10
+//                GPSMetadata[(kCGImagePropertyGPSAltitudeRef as String)] = 1
+//                GPSMetadata[(kCGImagePropertyGPSTimeStamp as String)] = "08:13:48Z"
+//                GPSMetadata[(kCGImagePropertyGPSDateStamp as String)] = "2020:03:09"
+//                GPSMetadata[(kCGImagePropertyGPSVersion as String)] = "2.2.0.0"
+//                mutable[kCGImagePropertyExifDictionary as String] = GPSMetadata
+//                CGImageDestinationAddImageFromSource(destination, cgImgSource, 0, (mutable as CFDictionary))
+//                CGImageDestinationFinalize(destination)
+//
+//                let testImage: CIImage = CIImage(data: dataWithEXIF as Data, options: nil)!
+//                let newproperties: NSDictionary = testImage.properties as NSDictionary
+//
+//                print("after modification \(newproperties)")
+
+
+
+                ///
+                EXIFDictionary[kCGImagePropertyExifSubjectLocation as String] = "olalalalal"
+
+                mutable[kCGImagePropertyExifDictionary as String] = EXIFDictionary
+
+                CGImageDestinationAddImageFromSource(destination, cgImgSource, 0, (mutable as CFDictionary))
+                CGImageDestinationFinalize(destination)
+
+                let testImage: CIImage = CIImage(data: dataWithEXIF as Data, options: nil)!
+                let newproperties: NSDictionary = testImage.properties as NSDictionary
+
+                print("after modification \(newproperties)")
+
+                //creationRequet.addResource(with: .photo, data: testImage, options: creationOptions)
+
+                ///
             }
         }, completionHandler: nil)
     }
     
     func checkCameraAuthorization(_ completionHandler: @escaping ((_ authorized: Bool) -> Void)) {
+        print("checkCameraAuthorization")
         switch AVCaptureDevice.authorizationStatus(for: AVMediaType.video) {
         case .authorized:
             //The user has previously granted access to the camera.
@@ -987,6 +1103,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate{
     }
     
     func checkPhotoLibraryAuthorization(_ completionHandler: @escaping ((_ authorized: Bool) -> Void)) {
+        print("checkPhotoLibraryAuthorization")
         switch PHPhotoLibrary.authorizationStatus() {
         case .authorized:
             // The user has previously granted access to the photo library.
